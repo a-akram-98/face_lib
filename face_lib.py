@@ -23,7 +23,7 @@ class face_lib:
             faces = self.profileClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 3)
             if len(faces) == 0:
                 grayFlip = cv2.flip(gray, 1)
-                faces = profileClassfier.detectMultiScale(grayFlip, scaleFactor = 1.1, minNeighbors = 3) 
+                faces = self.profileClassfier.detectMultiScale(grayFlip, scaleFactor = 1.1, minNeighbors = 3) 
         
         no_faces = len(faces)
 
