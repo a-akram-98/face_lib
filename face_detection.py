@@ -1,6 +1,6 @@
 import cv2
 import time
-import numpy as np 
+import numpy as npp 
 
 cap  = cv2.VideoCapture(0,cv2.CAP_DSHOW)
 
