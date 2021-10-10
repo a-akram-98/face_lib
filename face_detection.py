@@ -4,14 +4,7 @@ import numpy as np
 
 cap  = cv2.VideoCapture(0,cv2.CAP_DSHOW)
 
-
-
-
-
-
-        
-        
-
+                
 frontalClassfier = cv2.CascadeClassifier("haarcascade_frontalface_alt2.xml")
 profileClassfier = cv2.CascadeClassifier("haarcascade_profileface.xml")
 

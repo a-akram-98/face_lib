@@ -18,9 +18,9 @@ class face_lib:
         """
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = frontalClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 3)
+        faces = self.frontalClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 3)
         if len(faces) == 0:
-            faces = profileClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 3)
+            faces = self.profileClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 3)
             if len(faces) == 0:
                 grayFlip = cv2.flip(gray, 1)
                 faces = profileClassfier.detectMultiScale(grayFlip, scaleFactor = 1.1, minNeighbors = 3) 
