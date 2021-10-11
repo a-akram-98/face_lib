@@ -4,18 +4,19 @@ import numpy as np
 from face_lib import face_lib
 
 
-cap  = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-myface = cv2.imread("myface1.jpg")
+cap  = cv2.VideoCapture(0)
+myface = cv2.imread("myfile.jpg")
 
 
 face_lib = face_lib()
 
 while(True):
+    time.sleep(3)
     ret, frame = cap.read()
 
-   
+    start = time.time()
     v = face_lib.recognition_pipeline(frame, myface)
-    print(v)
+    print(time.time()-start)
 
     cv2.imshow("frame", frame)
     if cv2.waitKey(20) & 0xFF == ord('q'):
@@ -23,5 +24,3 @@ while(True):
 
 cap.release()
 cv2.destroyAllWindows()
-
-print(cv2)
