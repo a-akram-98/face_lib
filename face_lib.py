@@ -5,42 +5,52 @@ class face_lib:
 
     def __init__(self):
         self.frontalClassfier = cv2.CascadeClassifier("haarcascade_frontalface_alt2.xml")
+        ##TODO need to detcet the side of face if no frontal face detected
         #self.profileClassfier = cv2.CascadeClassifier("haarcascade_profileface.xml")
         self.faceEmbeddingNet = cv2.dnn.readNetFromTensorflow("graph_final.pb")
     
     def recognition_pipeline(self, face_img, gt_img, only_face_gt = False, threshold = 0.92):
         """
-        input: test image (frame), and ground truth image (given from cv.imread(), expecting BGR image),
+        input: test image (face_img), and ground truth image (given from cv.imread(), expecting BGR image),
         return: [True] if the person in the test image is the same as frounf truth image,
                 [False] if there is no person detected or the preson in test not the one in the ground truth
+                [no_of_faces] number of faces detected in face_img (0 in case of no faces detected)
 
-                the method is used now for only verfying one face only if the input image has more than face it will verfiy the first face detected
-            
+                if multiple faces in the test image (face_img) the function will verfiy if the face provided in g_image appears in the test image or not.
         """
         
-        _, face_coors = self.faces_locations(face_img)
-        _, gt_coors = self.faces_locations(gt_img)
+        no_of_faces, faces_coors = self.faces_locations(face_img)
+        no_of_faces_gt,  gt_coors = self.faces_locations(gt_img)
 
-        if len(face_coors) != 1:
-            return False
-        face = self.verification_preprocess(face_coors[0], face_img)
-        gt = None
-        if not only_face_gt:
-            gt   = self.verification_preprocess(gt_coors[0], gt_img)
-        else:
-            gt = self.prewhiten(gt_img)
-            gt = gt.transpose([2, 0, 1])
-            gt = np.expand_dims(gt, axis=0)
+        if no_of_faces_gt != 1:
+            raise Exception("Detected more than one face in the ground truth image ... ")
 
 
+        if no_of_faces == 0:
+            return False, no_of_faces
+        distances = list()
+        for face_coor in faces_coors:
 
-        distance = self.face_similarity(face,gt)
-        print("distance ", distance)
+            face = self.verification_preprocess(face_coor, face_img)
+            gt = None
+            if not only_face_gt:
+                gt   = self.verification_preprocess(gt_coors[0], gt_img)
+            else:
+                gt = self.prewhiten(gt_img)
+                gt = gt.transpose([2, 0, 1])
+                gt = np.expand_dims(gt, axis=0)
 
-        if distance < threshold:
-            return True
 
-        return False
+
+            distance = self.face_similarity(face,gt)
+            distances.append(distance)
+
+        min_distance = min(distances)
+
+        if min_distance < threshold:
+            return True, no_of_faces
+
+        return False, no_of_faces
 
 
     
