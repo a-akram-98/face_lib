@@ -8,52 +8,74 @@ class face_lib:
         #self.profileClassfier = cv2.CascadeClassifier("haarcascade_profileface.xml")
         self.faceEmbeddingNet = cv2.dnn.readNetFromTensorflow("graph_final.pb")
     
-    def recognition_pipeline(self, face_img, gt_img, only_face_gt = False):
+    def recognition_pipeline(self, face_img, gt_img, only_face_gt = False, threshold = 0.92):
         """
-        input: test image (frame), and ground truth image (given from cv.imread()),
+        input: test image (frame), and ground truth image (given from cv.imread(), expecting BGR image),
         return: [True] if the person in the test image is the same as frounf truth image,
                 [False] if there is no person detected or the preson in test not the one in the ground truth
+
+                the method is used now for only verfying one face only if the input image has more than face it will verfiy the first face detected
+            
         """
         
-        _, face_coors = self.face_detection(face_img)
-        _, gt_coors = self.face_detection(gt_img)
+        _, face_coors = self.faces_locations(face_img)
+        _, gt_coors = self.faces_locations(gt_img)
 
-        if len(face_coors) == 0:
+        if len(face_coors) != 1:
             return False
-        face = self.recognition_preprocess(face_coors[0], face_img)
+        face = self.verification_preprocess(face_coors[0], face_img)
         gt = None
         if not only_face_gt:
-            gt   = self.recognition_preprocess(gt_coors[0], gt_img)
+            gt   = self.verification_preprocess(gt_coors[0], gt_img)
         else:
-            gt = gt_img
+            gt = self.prewhiten(gt_img)
+            gt = gt.transpose([2, 0, 1])
+            gt = np.expand_dims(gt, axis=0)
+
+
 
         distance = self.face_similarity(face,gt)
+        print("distance ", distance)
 
-        if distance < 0.92:
+        if distance < threshold:
             return True
 
         return False
 
 
     
-
-    def face_detection(self, frame):
+    def get_faces(self, image):
         """
-            input: frame given by cv.VideoCapture
+        input: BGR image
+        return: list of faces as numpy array
+        """
+        _, faces_locations = self.faces_locations(image)
+        faces = list()
+        for face_location in faces_locations:
+            (x,y,w,h) = face_location
+            face = image[y:y+h,x:x+w]
+            face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
+            faces.append(face)
+
+        return faces
+
+    def faces_locations(self, image):
+        """
+            input: frame given by cv.VideoCapture or image given from cv2.imread() (BGR images)
 
             return: [int] no. of faces detected in images, 
                     [list] list of faces coordinates in shape of (x, y, w, h)
         
         """
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces_coors = self.frontalClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 10)
 
         no_faces = len(faces_coors)
 
         return no_faces, faces_coors   
     
-    def recognition_preprocess(self, coors, img):
+    def verification_preprocess(self, coors, img):
         """
         input: coordinates given by face detection, image to extract the face
         operation: preprocessing the image to extract the face frome image and do some preprocessing for
