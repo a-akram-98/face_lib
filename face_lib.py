@@ -1,13 +1,19 @@
 import cv2
 import numpy as np
+import os
+
+
+
 
 class face_lib:
 
     def __init__(self):
-        self.frontalClassfier = cv2.CascadeClassifier("haarcascade_frontalface_alt2.xml")
+        BASE_DIR = os.path.dirname(__file__)
+        self.frontalClassfier = cv2.CascadeClassifier(BASE_DIR + "/haarcascade_frontalface_alt2.xml")
+
         ##TODO need to detcet the side of face if no frontal face detected
         #self.profileClassfier = cv2.CascadeClassifier("haarcascade_profileface.xml")
-        self.faceEmbeddingNet = cv2.dnn.readNetFromTensorflow("graph_final.pb")
+        self.faceEmbeddingNet = cv2.dnn.readNetFromTensorflow(BASE_DIR + "/graph_final.pb")
     
     def recognition_pipeline(self, face_img, gt_img, only_face_gt = False, threshold = 0.92):
         """
