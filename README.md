@@ -27,7 +27,7 @@ If you want to get faces locations (coordinates) instead of the faces from the i
 ```python
 no_of_faces, faces_coors = FL.faces_locations(face_img)
 ```
-## Face verfication
+### Face verfication
 ```python
 img_to_verfiy = cv2.imread(path_to_image_to_verify) #image that contain face you want verify
 gt_img = cv2.imread(path_to_image_to_compare) #image of the face to compare with
