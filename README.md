@@ -53,7 +53,7 @@ I you want represent the face with vector from face only image, you can use
 face_embeddings = FL.face_embeddings(face_only_image)
 ```
 
-For PIL images
+### For PIL images
 ```python
 import cv2
 import numpy
