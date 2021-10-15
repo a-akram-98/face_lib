@@ -28,24 +28,25 @@ class face_lib:
         no_of_faces, faces_coors = self.faces_locations(face_img)
 
         no_of_faces_gt,  gt_coors = None, None
+        gt = None
         if not only_face_gt:
             no_of_faces_gt,  gt_coors = self.faces_locations(gt_img)
             if no_of_faces_gt != 1:
                 raise Exception("Detected more than one face in the ground truth image ... ")
+            gt   = self.verification_preprocess(gt_img,gt_coors[0])
+            
+        else:
+            gt   = self.verification_preprocess(gt_img)
+
 
 
         if no_of_faces == 0:
             return False, no_of_faces
-        distances = list()
+    
+        distances = list()        
+        
         for face_coor in faces_coors:
-            print(face_coor)
             face = self.verification_preprocess(face_img, face_coor)
-            gt = None
-            if not only_face_gt:
-                gt   = self.verification_preprocess(gt_img,gt_coors[0])
-            else:
-                gt   = self.verification_preprocess(gt_img)
-
 
 
             distance = self.face_similarity(face,gt)
@@ -99,11 +100,10 @@ class face_lib:
 
         return: preprocessed image
         """
+        img = img
         if coors is not None:
             (x,y,w,h) = coors
             img = img[y:y+h,x:x+w]
-        else:
-            img = img
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = cv2.resize(img, (160,160), interpolation=cv2.INTER_LINEAR)
         img = self.prewhiten(img)

@@ -1,4 +1,2 @@
-__pycache__/face_lib.cpython-39.pyc
-__pycache__/example_use.cpython-39.pyc
-__pycache__/__init__.cpython-39.pyc
-__pycache__/__init__.cpython-38.pyc
+dist/
+src/face_library.egg-info/

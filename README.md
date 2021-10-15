@@ -4,7 +4,7 @@ The Library doesn't use heavy frameworks like TensorFlow, Keras and PyTorch so i
 
 ## Installation
 ```bash
-pip install face_lib
+pip install face-library
 ```
 
 ## Usage
