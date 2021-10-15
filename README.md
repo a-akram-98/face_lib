@@ -1,6 +1,7 @@
 # Face Library
 Face Library is an open source package for accurate and real-time face detection and recognition. The package is built over OpenCV and using famous models and algorithms for face detection and recognition tasks. Make face detection and recognition with only one line of code.
 The Library doesn't use heavy frameworks like TensorFlow, Keras and PyTorch so it makes it perfect for production.
+
 ## Installation
 ```bash
 pip install face_lib
@@ -20,9 +21,13 @@ The model is built over OpenCV, so it expects cv2 input (i.e. BGR image), it wil
 import cv2
 
 img = cv2.imread(path_to_image)
-faces = FL.get_faces(img) #retuen list of RGB faces image
+faces = FL.get_faces(img) #return list of RGB faces image
 ```
-Face verfication
+If you want to get faces locations (coordinates) instead of the faces from the image you can use
+```python
+no_of_faces, faces_coors = FL.faces_locations(face_img)
+```
+## Face verfication
 ```python
 img_to_verfiy = cv2.imread(path_to_image_to_verify) #image that contain face you want verify
 gt_img = cv2.imread(path_to_image_to_compare) #image of the face to compare with
