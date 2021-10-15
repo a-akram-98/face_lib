@@ -77,7 +77,7 @@ There are many ways to support a project - starring⭐️ the GitHub repo is jus
 
 ## Licence
 
-Face_lib is licensed under the MIT License
+Face library is licensed under the MIT License
 
 
 
