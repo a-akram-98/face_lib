@@ -9,11 +9,11 @@ class face_lib:
 
     def __init__(self):
         BASE_DIR = os.path.dirname(__file__)
-        self.frontalClassfier = cv2.CascadeClassifier(BASE_DIR + "/haarcascade_frontalface_alt2.xml")
+        self.__frontalClassfier = cv2.CascadeClassifier(os.path.join(BASE_DIR , "haarcascade_frontalface_alt2.xml"))
 
         ##TODO need to detcet the side of face if no frontal face detected
         #self.profileClassfier = cv2.CascadeClassifier("haarcascade_profileface.xml")
-        self.faceEmbeddingNet = cv2.dnn.readNetFromTensorflow(BASE_DIR + "/graph_final.pb")
+        self.__faceEmbeddingNet = cv2.dnn.readNetFromTensorflow(os.path.join(BASE_DIR , "graph_final.pb"))
     
     def recognition_pipeline(self, face_img, gt_img, only_face_gt = False, threshold = 0.92):
         """
@@ -85,7 +85,7 @@ class face_lib:
         """
 
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        faces_coors = self.frontalClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 10)
+        faces_coors = self.__frontalClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 10)
 
         no_faces = len(faces_coors)
 
@@ -144,7 +144,7 @@ class face_lib:
         return: face embeddings of the image
         """
         self.faceEmbeddingNet.setInput(face)
-        faceEmbeddings = self.faceEmbeddingNet.forward()[0]
+        faceEmbeddings = self.__faceEmbeddingNet.forward()[0]
         return faceEmbeddings
     
     
