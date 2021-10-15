@@ -26,25 +26,25 @@ class face_lib:
         """
         
         no_of_faces, faces_coors = self.faces_locations(face_img)
-        no_of_faces_gt,  gt_coors = self.faces_locations(gt_img)
 
-        if no_of_faces_gt != 1:
-            raise Exception("Detected more than one face in the ground truth image ... ")
+        no_of_faces_gt,  gt_coors = None, None
+        if not only_face_gt:
+            no_of_faces_gt,  gt_coors = self.faces_locations(gt_img)
+            if no_of_faces_gt != 1:
+                raise Exception("Detected more than one face in the ground truth image ... ")
 
 
         if no_of_faces == 0:
             return False, no_of_faces
         distances = list()
         for face_coor in faces_coors:
-
-            face = self.verification_preprocess(face_coor, face_img)
+            print(face_coor)
+            face = self.verification_preprocess(face_img, face_coor)
             gt = None
             if not only_face_gt:
-                gt   = self.verification_preprocess(gt_coors[0], gt_img)
+                gt   = self.verification_preprocess(gt_img,gt_coors[0])
             else:
-                gt = self.prewhiten(gt_img)
-                gt = gt.transpose([2, 0, 1])
-                gt = np.expand_dims(gt, axis=0)
+                gt   = self.verification_preprocess(gt_img)
 
 
 
@@ -91,16 +91,19 @@ class face_lib:
 
         return no_faces, faces_coors   
     
-    def verification_preprocess(self, coors, img):
+    def verification_preprocess(self,  img, coors = None):
         """
-        input: coordinates given by face detection, image to extract the face
+        input: coordinates given by face detection, image to extract the face, None if the image contains only one face
         operation: preprocessing the image to extract the face frome image and do some preprocessing for
         the faceEmbeddings model
 
         return: preprocessed image
         """
-        (x,y,w,h) = coors
-        img = img[y:y+h,x:x+w]
+        if coors is not None:
+            (x,y,w,h) = coors
+            img = img[y:y+h,x:x+w]
+        else:
+            img = img
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = cv2.resize(img, (160,160), interpolation=cv2.INTER_LINEAR)
         img = self.prewhiten(img)
@@ -143,7 +146,7 @@ class face_lib:
         input: image of face with dimensions of 96x96
         return: face embeddings of the image
         """
-        self.faceEmbeddingNet.setInput(face)
+        self.__faceEmbeddingNet.setInput(face)
         faceEmbeddings = self.__faceEmbeddingNet.forward()[0]
         return faceEmbeddings
     
