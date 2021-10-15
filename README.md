@@ -63,6 +63,16 @@ PIL_img = Image.open(path_to_image)
 
 cv2_img = cv2.cvtColor(numpy.array(pil_image), cv2.COLOR_RGB2BGR) #now you can use this to be input for face_lib functions
 ```
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## Support
+
+There are many ways to support a project - starring⭐️ the GitHub repo is just one.
+
+## Licence
+
+Face_lib is licensed under the MIT License
 
 
 
