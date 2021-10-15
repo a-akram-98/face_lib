@@ -38,7 +38,7 @@ face_exist, no_faces_detected = FL.recognition_pipeline(img_to_verfiy, gt_image,
 ```
 also if you know that `gt_img` has only one face and the image is zoomed to that face like this :
 <p align="center">
-<img src="https://raw.githubusercontent.com/a-akram-98/face_lib/master/jake.jpg" width="100"> 
+<img src="https://raw.githubusercontent.com/a-akram-98/face_lib/master/example%20img/jake.jpg" width="100"> 
 </p>
 
 You can save computing time and the make the model more faster by using
