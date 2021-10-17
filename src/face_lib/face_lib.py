@@ -1,19 +1,59 @@
 import cv2
 import numpy as np
+from tqdm import tqdm
+import requests
+import logging
 import os
 
-
+logging.basicConfig()
+logging.root.setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO)
+logging_handle = "[Face Library]"
+logger = logging.getLogger(logging_handle)
 
 
 class face_lib:
 
     def __init__(self):
         BASE_DIR = os.path.dirname(__file__)
-        self.__frontalClassfier = cv2.CascadeClassifier(os.path.join(BASE_DIR , "haarcascade_frontalface_alt2.xml"))
 
+        self.__frontalClassfier = cv2.CascadeClassifier(os.path.join(BASE_DIR , "haarcascade_frontalface_alt2.xml"))
         ##TODO need to detcet the side of face if no frontal face detected
         #self.profileClassfier = cv2.CascadeClassifier("haarcascade_profileface.xml")
-        self.__faceEmbeddingNet = cv2.dnn.readNetFromTensorflow(os.path.join(BASE_DIR , "graph_final.pb"))
+        self.__faceEmbeddingNet = None
+        file_exists = False
+        try:
+            file_exists = os.path.exists(os.path.join(BASE_DIR , "graph_final.pb"))
+            self.__faceEmbeddingNet = cv2.dnn.readNetFromTensorflow(os.path.join(BASE_DIR , "graph_final.pb"))
+        except:
+            ############## Download Face Recognition model fom github #############
+
+            face_recog_url = "https://github.com/a-akram-98/face_lib/releases/download/v1.0.5/graph_final.pb" 
+
+            if file_exists :
+                logger.info("Face recognition model is corrupted downloading it again, please wait ...")
+                logger.info("This download will be done once if no errors happened, don't worry ...")
+            else:
+                logger.info("Downloading face recognition model for the first time ...")
+                logger.info("This download will be done once if no errors happened, don't worry ...")
+    
+            response = requests.get(face_recog_url, stream=True)
+            total_size_in_bytes= int(response.headers.get('content-length', 0))
+            block_size = 1024 #1 Kibibyte
+            progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+
+            with open(os.path.join(BASE_DIR , "graph_final.pb"), 'wb') as file:
+                for data in response.iter_content(block_size):
+                    progress_bar.update(len(data))
+                    file.write(data)
+
+            progress_bar.close()
+            if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+                logging.error("Something went wrong")
+            else:
+                self.__faceEmbeddingNet = cv2.dnn.readNetFromTensorflow(os.path.join(BASE_DIR , "graph_final.pb"))
+            
+
     
     def recognition_pipeline(self, face_img, gt_img, only_face_gt = False, threshold = 0.92):
         """
