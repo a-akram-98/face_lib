@@ -2,7 +2,7 @@
 Face Library is an open source package for accurate and real-time face detection and recognition. The package is built over OpenCV and using famous models and algorithms for face detection and recognition tasks. Make face detection and recognition with only one line of code.
 The Library doesn't use heavy frameworks like TensorFlow, Keras and PyTorch so it makes it perfect for production.
 
-## Patch 1.0.6 update
+## Patch 1.0.61 update
 `graph_final.pb` is deleted and uploaded in release `1.0.5`, also the file uploaded to google drive for alternative download if github release failed. Now the first use of the library it will download the model only once, from the Git Release/Google Drive.
 
 Please Upgrade to latest version if you already have Face Library.

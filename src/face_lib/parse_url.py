@@ -1,5 +1,5 @@
 """
-This file is imported with some modification from gdown repo, many thanks ans support to them.
+This file is imported with some modification from gdown repo, many thanks anي support to them.
 gdown repo: https://github.com/wkentaro/gdown
 """
 import re
