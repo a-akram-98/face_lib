@@ -13,6 +13,8 @@ The Library doesn't use heavy frameworks like TensorFlow, Keras and PyTorch so i
 
 ## Release 1.1.0
 **BlazeFace** model used in face detection now instead of Haar Cascade, decreasing the inference time x10 times and detect frontal and profile face more accurate 
+## Patch 1.1.3
+Solving little import issue
 
 Please Upgrade to latest version if you already have Face Library.
 
