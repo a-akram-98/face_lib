@@ -75,7 +75,7 @@ You can change the threshold of verfication with the best for your usage or data
 ```python
 face_exist, no_faces_detected = FL.recognition_pipeline(img_to_verfiy, gt_image, threshold = 1.1) #default number is 0.92
 ```
-also if you know that `gt_img` has only one face and the image is zoomed to that face like this :
+also if you know that `gt_img` has only one face and the image is zoomed to that face (65%-75% of image is face) like this :
 <p align="center">
 <img src="https://raw.githubusercontent.com/a-akram-98/face_lib/master/example%20img/jake.jpg" width="100"> 
 </p>
