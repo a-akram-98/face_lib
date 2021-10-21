@@ -11,7 +11,7 @@
 Face Library is a 100% python open source package for accurate and real-time face detection and recognition. The package is built over OpenCV and using famous models and algorithms for face detection and recognition tasks. Make face detection and recognition with only one line of code.
 The Library doesn't use heavy frameworks like TensorFlow, Keras and PyTorch so it makes it perfect for production.
 
-## Patch 1.1.3
+## Release 1.1.0
 **BlazeFace** model used in face detection now instead of Haar Cascade, decreasing the inference time x10 times and detect frontal and profile face more accurate 
 
 Please Upgrade to latest version if you already have Face Library.
