@@ -2,7 +2,7 @@ import time
 import cv2
 import numpy as np
 import onnxruntime
-from blazeFaceUtils import gen_anchors, AnchorsOptions
+from .blazeFaceUtils import gen_anchors, AnchorsOptions
 import json
 import time
 import os
