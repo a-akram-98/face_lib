@@ -1,23 +1,21 @@
 import cv2
 import numpy as np
-import logging
 import os
 from .download import download
-
-logging.basicConfig()
-logging.root.setLevel(logging.INFO)
-logging.basicConfig(level=logging.INFO)
-logging_handle = "[Face Library]"
-logger = logging.getLogger(logging_handle)
+from .BlazeDetector import BlazeFaceDetector
 
 
 class face_lib:
 
-    def __init__(self):
+    def __init__(self, detection_model = "front"):
+        """
+        input: [detection_model] a string holds the detection model name
+                there are two choices "front" which is fast, "back" which is a little bit slower but more accurate
+                for most use cases "front" will be just fine
+        """
         BASE_DIR = os.path.dirname(__file__)
 
-        self.__frontalClassfier = cv2.CascadeClassifier(os.path.join(BASE_DIR , "haarcascade_frontalface_alt2.xml"))
-        ##TODO need to detcet the side of face if no frontal face detected
+        self.__faceDetector = BlazeFaceDetector(typ=detection_model)
         #self.profileClassfier = cv2.CascadeClassifier("haarcascade_profileface.xml")
         self.__faceEmbeddingNet = None
         file_exists = False
@@ -27,28 +25,36 @@ class face_lib:
         except:
             ############## Download Face Recognition model fom github #############
             if file_exists :
-                logger.info("Face recognition model is corrupted downloading it again, please wait ...")
-                logger.info("This download will be done once if no errors happened, don't worry ...")
+                print("Face recognition model is corrupted downloading it again, please wait ...")
+                print("This download will be done once if no errors happened, don't worry ...")
             else:
-                logger.info("Downloading face recognition model for the first time ...")
-                logger.info("This download will be done once if no errors happened, don't worry ...")
+                print("Downloading face recognition model for the first time ...")
+                print("This download will be done once if no errors happened, don't worry ...")
             
-            logger.info("If the download didn't done correctly you can create the instance again it will try to download it again automatically for you")
+            print("If the download didn't done correctly you can create the instance again it will try to download it again automatically for you")
             
             check_error = download("https://github.com/a-akram-98/face_lib/releases/download/v1.0.5/graph_final.pb", os.path.join(BASE_DIR , "graph_final.pb"), quiet=False)
             if check_error == "Error":
-                logger.error("It seems github release is too slow, switching to the download from Google Drive")
+                print("It seems github release is too slow, switching to the download from Google Drive")
                 check_error = download(id = "1pNU-V31cdgCSRu9XQqoSv1tjbuAfVOSG",output= os.path.join(BASE_DIR , "graph_final.pb"), quiet=False)
                 if check_error == "Error":
-                    logger.error("Download Failed, It seems your connection is slow ...")
-                    logger.info("You can download the model manually from this link: "+ "https://github.com/a-akram-98/face_lib/releases/download/v1.0.5/graph_final.pb")
-                    logger.info("then add it to the following path:")
-                    logger.info(BASE_DIR)
+                    print("Download Failed, It seems your connection is slow ...")
+                    print("You can download the model manually from this link: "+ "https://github.com/a-akram-98/face_lib/releases/download/v1.0.5/graph_final.pb")
+                    print("then add it to the following path:")
+                    print(BASE_DIR)
                     return
 
 
             self.__faceEmbeddingNet = cv2.dnn.readNetFromTensorflow(os.path.join(BASE_DIR , "graph_final.pb"))
             
+    def set_detection_params(self, scoreThreshold=0.7, iouThreshold=0.3):
+        """
+        inputs: [scoreThreshold] an float between 0-1 represents the confidence level thershold
+                [iouThreshold] an float between 0-1 represents the intersection over union threshold
+        """
+        self.__faceDetector.scoreThreshold = scoreThreshold
+        self.__faceDetector.sigmoidScoreThreshold = np.log(scoreThreshold/(1-scoreThreshold))
+        self.__faceDetector.iouThreshold = iouThreshold
 
     
     def recognition_pipeline(self, face_img, gt_img, only_face_gt = False, threshold = 0.92):
@@ -97,12 +103,12 @@ class face_lib:
 
 
     
-    def get_faces(self, image):
+    def get_faces(self, image, max_no_faces = 2):
         """
         input: BGR image
         return: list of faces as numpy array
         """
-        _, faces_locations = self.faces_locations(image)
+        _, faces_locations = self.faces_locations(image,max_no_faces)
         faces = list()
         for face_location in faces_locations:
             (x,y,w,h) = face_location
@@ -112,17 +118,17 @@ class face_lib:
 
         return faces
 
-    def faces_locations(self, image):
+    def faces_locations(self, image, max_no_faces = 2):
         """
-            input: frame given by cv.VideoCapture or image given from cv2.imread() (BGR images)
-
+            input: [image] frame given by cv.VideoCapture or image given from cv2.imread() (BGR images)
+                   [max_no_faces] an integer represents the max. no. of faces to be detcted in the image 
             return: [int] no. of faces detected in images, 
                     [list] list of faces coordinates in shape of (x, y, w, h)
         
         """
 
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        faces_coors = self.__frontalClassfier.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 10)
+        
+        faces_coors = self.__faceDetector(image, max_no_faces)
 
         no_faces = len(faces_coors)
 

@@ -18,15 +18,9 @@ import time
 import requests
 import six
 import tqdm
-import logging
 
 from .parse_url import parse_url
 
-logging.basicConfig()
-logging.root.setLevel(logging.INFO)
-logging.basicConfig(level=logging.INFO)
-logging_handle = "[Face Library]"
-logger = logging.getLogger(logging_handle)
 
 CHUNK_SIZE = 512 * 1024  # 512KB
 home = osp.expanduser("~")
@@ -144,7 +138,7 @@ def download(
 
     if proxy is not None:
         sess.proxies = {"http": proxy, "https": proxy}
-        logger.info("Using proxy:" + proxy)
+        print("Using proxy:" + proxy)
 
     gdrive_file_id, is_gdrive_download_link = parse_url(url, warning=not fuzzy)
 
@@ -161,15 +155,18 @@ def download(
     while True:
         try:
             if id is None:
-                res = sess.get(url, headers=headers, stream=True, verify=verify, timeout= 100)
+                res = sess.get(url,headers=headers, stream=True, timeout= (20,5))
             else:
-                res = sess.get(url, headers=headers, stream=True, verify=verify, timeout = 300)
+                res = sess.get(url, headers=headers, stream=True, verify=verify, timeout = 30)
 
         except requests.exceptions.ProxyError as e:
-            logger.error("An error has occurred using proxy")
+            print("An error has occurred using proxy")
             return "Error"
         except requests.exceptions.ConnectionError as e:
-            logger.error("An error has occurred connectiong to download server")
+            print("An error has occurred connectiong to download server")
+            return "Error"
+        except requests.exceptions.ReadTimeout as e:
+            print("An error has occurred connectiong to download server")
             return "Error"
 
         
@@ -193,12 +190,12 @@ def download(
         try:
             url = get_url_from_gdrive_confirmation(res.text)
         except RuntimeError as e:
-            logger.error("Access denied with the following error:")
+            print("Access denied with the following error:")
             error = "\n".join(textwrap.wrap(str(e)))
             error = indent_func(error, "\t")
-            logger.error("\n"+ error+"\n")
-            logger.info("You may still be able to access the file from the browser")
-            logger.info("\n\t"+url_origin+"\n")
+            print("\n"+ error+"\n")
+            print("You may still be able to access the file from the browser")
+            print("\n\t"+url_origin+"\n")
             return "Error"
 
     if gdrive_file_id and is_gdrive_download_link:
@@ -228,25 +225,33 @@ def download(
                 dir=osp.dirname(output),
             )
             tmp_file = osp.join(osp.dirname(output),osp.basename(output))
-        f = open(tmp_file, "ab")
+            print(tmp_file)
+        f = open(tmp_file, "wb")
     else:
         tmp_file = None
         f = output
-
+    print(f.tell())
     if tmp_file is not None and f.tell() != 0:
         headers["Range"] = "bytes={}-".format(f.tell())
-        if id is None:
-            res = sess.get(url, headers=headers, stream=True, verify=verify, timeout = 100)
-        else:
-            res = sess.get(url, headers=headers, stream=True, verify=verify, timeout = 300)
-            
+        try:
+            if id is None:
+                res = sess.get(url, stream=True, timeout = (20,5))
+            else:
+                res = sess.get(url, headers=headers, stream=True, verify=verify, timeout = 30)
+
+        except requests.exceptions.ConnectionError as e:
+            print("An error has occurred connectiong to download server")
+            return "Error"
+        except requests.exceptions.ReadTimeout as e:
+            print("An error has occurred connectiong to download server")
+            return "Error"    
 
     if not quiet:
-        logger.info("Downloading started ...")
+        print("Downloading started ...")
         if resume:
-            logger.info("Resume: ", tmp_file)
-        logger.info("From: "+ url_origin)
-        logger.info(
+            print("Resume: ", tmp_file)
+        print("From: "+ url_origin)
+        print(
             "To: "+ osp.abspath(output) if output_is_path else output,)
 
     try:
@@ -257,26 +262,36 @@ def download(
             pbar = tqdm.tqdm(total=total, unit="B", unit_scale=True)
         t_start = time.time()
         for chunk in res.iter_content(chunk_size=CHUNK_SIZE):
+            if time.time() - t_start > 50:
+                return "Error"
             f.write(chunk)
             if not quiet:
                 pbar.update(len(chunk))
             if speed is not None:
                 elapsed_time_expected = 1.0 * pbar.n / speed
+                
                 elapsed_time = time.time() - t_start
                 if elapsed_time < elapsed_time_expected:
                     time.sleep(elapsed_time_expected - elapsed_time)
+            t_start = time.time()
+            
+                    
         if not quiet:
             pbar.close()
         if tmp_file:
             f.close()
             shutil.move(tmp_file, output)
     except IOError as e:
-        logger.error(e)
+        print(e)
         return "Error"
     except requests.exceptions.RequestException as e:  # This is the correct syntax
             return "Error"
+    
     except requests.exceptions.ConnectionError as e:
-        logger.error("An error has occurred connectiong to download server")
+        print("An error has occurred connectiong to download server")
+        return "Error"
+    except requests.exceptions.ReadTimeout as e:
+        print("An error has occurred connectiong to download server")
         return "Error"
     finally:
         sess.close()

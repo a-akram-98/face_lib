@@ -6,3 +6,5 @@ src/face_library.egg-info/PKG-INFO
 src/face_library.egg-info/requires.txt
 src/face_library.egg-info/SOURCES.txt
 src/face_library.egg-info/top_level.txt
+dist/face_library-1.1.0-py3-none-any.whl
+dist/face-library-1.1.0.tar.gz
