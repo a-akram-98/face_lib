@@ -1,4 +1,10 @@
 # Face Library
+
+![](https://img.shields.io/badge/current%20version-v1.1.0-brightgreen)
+[![Downloads](https://pepy.tech/badge/face-library)](https://pepy.tech/project/face-library)
+![](https://img.shields.io/badge/python-%3E%3D3.6-blue)
+![](https://img.shields.io/badge/licence-MIT-red)
+
 <p align="center">
 <img src="https://raw.githubusercontent.com/a-akram-98/face_lib/master/logo/FL.jpeg" width="500"> 
 </p>
